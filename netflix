@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Harga</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  
+  <style>
+      body {
+          box-sizing: border-box;
+          /* Menggunakan font khas Netflix */
+          font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh; /* diubah ke vh agar selalu penuh */
+          /* Latar belakang gelap khas Netflix */
+          background: #141414;
+          margin: 0;
+          padding: 20px;
+      }
+      
+      .kalkulator {
+          /* Warna kartu gelap */
+          background-color: #221f1f;
+          padding: 35px 40px;
+          border-radius: 8px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
+          width: 100%;
+          max-width: 400px;
+          border: 1px solid #333333;
+      }
+      
+      .kalkulator h2 {
+          text-align: center;
+          margin-top: 0;
+          margin-bottom: 30px;
+          color: #ffffff;
+          font-size: 28px;
+          font-weight: 700;
+      }
+      
+      .form-grup {
+          margin-bottom: 25px;
+      }
+      
+      .form-grup label {
+          display: block;
+          margin-bottom: 10px;
+          font-weight: 500;
+          color: #ffffff;
+          font-size: 15px;
+      }
+      
+      .form-grup select,
+      .form-grup input {
+          width: 100%;
+          padding: 14px 16px;
+          border: 1px solid #333333;
+          border-radius: 4px;
+          box-sizing: border-box;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          /* Warna input/aksen gelap */
+          background-color: #333333;
+          color: #ffffff;
+      }
+
+      /* Menambahkan style option agar terbaca */
+      .form-grup select option {
+        background: #333333;
+        color: #ffffff;
+      }
+      
+      .form-grup select:focus,
+      .form-grup input:focus {
+          outline: none;
+          /* Aksen fokus warna merah */
+          border-color: #e50914; 
+          background-color: #404040;
+          box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+      }
+      
+      .form-grup select {
+          cursor: pointer;
+      }
+      
+      .hasil {
+          text-align: center;
+          margin-top: 35px;
+          padding: 25px;
+          /* Warna highlight merah khas Netflix */
+          background: #e50914;
+          border-radius: 4px;
+          border: 1px solid #b8070f;
+      }
+      
+      .hasil h3 {
+          margin: 0 0 10px 0;
+          color: #ffffff;
+          font-size: 16px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+      
+      #hasil-harga {
+          color: #ffffff;
+          font-size: 36px;
+          font-weight: 700;
+          display: block;
+          text-shadow: none;
+      }
+      
+      @media (max-width: 480px) {
+          .kalkulator {
+              padding: 25px 20px;
+          }
+          
+          .kalkulator h2 {
+              font-size: 24px;
+          }
+          
+          #hasil-harga {
+              font-size: 30px;
+          }
+      }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="kalkulator">
+   <h2 id="judul">Hitung Harga Netflix Harian</h2>
+   <div class="form-grup"><label for="jenis" id="label-jenis">Pilih Jenis:</label> <select id="jenis"> <option value="1500">1u</option> <option value="1000">2u</option> </select>
+   </div>
+   <div class="form-grup"><label for="hari" id="label-hari">Jumlah Hari (1-7):</label> <input type="number" id="hari" value="1" min="1" max="7">
+   </div>
+   <div class="hasil">
+    <h3 id="label-hasil">Total Harga:</h3><span id="hasil-harga">Rp 0</span>
+   </div>
+  </div>
+  
+  <script>
+      /* * JAVASCRIPT DEFAULT CONFIG KEMBALI KE GAYA NETFLIX * */
+      const defaultConfig = {
+          judul_kalkulator: "Hitung Harga Netflix Harian",
+          label_jenis: "Pilih Jenis:",
+          label_hari: "Jumlah Hari (1-7):",
+          label_hasil: "Total Harga:",
+          background_color: "#141414",     // Warna gelap
+          secondary_color: "#e50914",    // Warna merah
+          text_color: "#ffffff",
+          card_background: "#221f1f",    // Warna kartu
+          accent_color: "#333333",       // Warna input
+          font_family: "Netflix Sans",    // Font
+          font_size: 16
+      };
+
+      const jenisSelect = document.getElementById('jenis');
+      const hariInput = document.getElementById('hari');
+      const hasilSpan = document.getElementById('hasil-harga');
+
+      function hitungHarga() {
+          const hargaDasar = parseInt(jenisSelect.value);
+          const jumlahHari = parseInt(hariInput.value);
+
+          if (jumlahHari < 1 || jumlahHari > 7 || isNaN(jumlahHari)) {
+              hasilSpan.textContent = "Error";
+              return;
+          }
+
+          // Untuk 1 hari: 1u = 1500, 2u = 1000
+          // Untuk hari tambahan: +500 per hari
+          let totalHarga;
+          if (jumlahHari === 1) {
+              totalHarga = hargaDasar;
+          } else {
+              totalHarga = hargaDasar + (500 * (jumlahHari - 1));
+          }
+          
+          hasilSpan.textContent = 'Rp ' + totalHarga.toLocaleString('id-ID');
+      }
+
+      jenisSelect.addEventListener('change', hitungHarga);
+      hariInput.addEventListener('input', hitungHarga);
+
+      async function onConfigChange(config) {
+          const judul = config.judul_kalkulator || defaultConfig.judul_kalkulator;
+          const labelJenis = config.label_jenis || defaultConfig.label_jenis;
+          const labelHari = config.label_hari || defaultConfig.label_hari;
+          const labelHasil = config.label_hasil || defaultConfig.label_hasil;
+          const bgColor = config.background_color || defaultConfig.background_color;
+          const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+          const textColor = config.text_color || defaultConfig.text_color;
+          const cardBg = config.card_background || defaultConfig.card_background;
+          const accentColor = config.accent_color || defaultConfig.accent_color;
+          const fontFamily = config.font_family || defaultConfig.font_family;
+          const fontSize = config.font_size || defaultConfig.font_size;
+
+          document.getElementById('judul').textContent = judul;
+          document.getElementById('label-jenis').textContent = labelJenis;
+          document.getElementById('label-hari').textContent = labelHari;
+          document.getElementById('label-hasil').textContent = labelHasil;
+
+          document.body.style.background = bgColor;
+          document.querySelector('.kalkulator').style.backgroundColor = cardBg;
+          document.querySelector('.kalkulator h2').style.color = textColor;
+          document.querySelectorAll('.form-grup label').forEach(label => {
+              label.style.color = textColor;
+          });
+          document.querySelectorAll('.form-grup select, .form-grup input').forEach(input => {
+              input.style.borderColor = accentColor;
+              input.style.backgroundColor = accentColor;
+              input.style.color = textColor;
+          });
+          document.querySelector('.hasil').style.background = secondaryColor;
+
+          const baseFontStack = 'Tahoma, Geneva, Verdana, sans-serif';
+          document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+          
+          document.querySelector('.kalkulator h2').style.fontSize = `${fontSize * 1.75}px`;
+          document.querySelectorAll('.form-grup label').forEach(label => {
+              label.style.fontSize = `${fontSize * 0.9375}px`;
+          });
+          document.querySelectorAll('.form-grup select, .form-grup input').forEach(input => {
+              input.style.fontSize = `${fontSize}px`;
+          });
+          document.querySelector('.hasil h3').style.fontSize = `${fontSize}px`;
+          document.getElementById('hasil-harga').style.fontSize = `${fontSize * 2.25}px`;
+      }
+
+      if (window.elementSdk) {
+          window.elementSdk.init({
+              defaultConfig,
+              onConfigChange,
+              mapToCapabilities: (config) => ({
+                  recolorables: [
+                      {
+                          get: () => config.background_color || defaultConfig.background_color,
+                          set: (value) => {
+                              config.background_color = value;
+                              window.elementSdk.setConfig({ background_color: value });
+                          }
+                      },
+                      {
+                          get: () => config.secondary_color || defaultConfig.secondary_color,
+                          set: (value) => {
+                              config.secondary_color = value;
+                              window.elementSdk.setConfig({ secondary_color: value });
+                          }
+                      },
+                      {
+                          get: () => config.text_color || defaultConfig.text_color,
+                          set: (value) => {
+                              config.text_color = value;
+                              window.elementSdk.setConfig({ text_color: value });
+                          }
+                      },
+                      {
+                          get: () => config.card_background || defaultConfig.card_background,
+                          set: (value) => {
+                              config.card_background = value;
+                              window.elementSdk.setConfig({ card_background: value });
+                          }
+                      },
+                      {
+                          get: () => config.accent_color || defaultConfig.accent_color,
+                          set: (value) => {
+                              config.accent_color = value;
+                              window.elementSdk.setConfig({ accent_color: value });
+                          }
+                      }
+                  ],
+                  borderables: [],
+                  fontEditable: {
+                      get: () => config.font_family || defaultConfig.font_family,
+                      set: (value) => {
+                          config.font_family = value;
+                          window.elementSdk.setConfig({ font_family: value });
+                      }
+                  },
+                  fontSizeable: {
+                      get: () => config.font_size || defaultConfig.font_size,
+                      set: (value) => {
+                          config.font_size = value;
+                          window.elementSdk.setConfig({ font_size: value });
+                      }
+                  }
+              }),
+              mapToEditPanelValues: (config) => new Map([
+                  ["judul_kalkulator", config.judul_kalkulator || defaultConfig.judul_kalkulator],
+                  ["label_jenis", config.label_jenis || defaultConfig.label_jenis],
+                  ["label_hari", config.label_hari || defaultConfig.label_hari],
+                  ["label_hasil", config.label_hasil || defaultConfig.label_hasil]
+              ])
+          });
+      }
+
+      // Memanggil hitungHarga() saat awal dimuat
+      hitungHarga();
+  </script>
+ </body>
+</html>
