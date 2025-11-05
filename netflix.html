@@ -77,6 +77,8 @@
           font-size: 16px;
           color: rgba(255, 255, 255, 0.9);
       }
+      
+      /* Ini blok CSS yang kita diskusikan */
       select, input[type="number"] {
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.15);
@@ -87,8 +89,10 @@
           font-weight: 600;
           outline: none;
           min-width: 150px;
-          width: 180px;
+          width: 180px; /* Atur lebar di sini */
+          box-sizing: border-box; /* Memastikan ukuran tetap konsisten */
       }
+
       select option {
           background: #1a0000;
           color: white;
@@ -214,47 +218,51 @@
           font_size: 16
       };
 
-      // --- FUNGSI INI YANG SAYA UBAH ---
+      // --- INI FUNGSI YANG SUDAH DIPERBARUI ---
       function calculatePrice() {
           const type = document.getElementById('typeSelect').value;
           const days = parseInt(document.getElementById('daysInput').value);
           
-          // Validasi input: sembunyikan hasil jika hari tidak valid (kurang dari 1 atau lebih dari 30)
+          // Sembunyikan hasil jika input tidak valid (di luar 1-30 hari)
           if (!days || days < 1 || days > 30) {
               document.getElementById('resultBox').style.display = 'none'; 
               return;
           }
 
           let price = 0;
+          let price2u = 0; // Ini akan jadi harga dasar
 
+          // --- Daftar Harga 2U (sesuai daftar baru Anda) ---
+          const basePrices2u = {
+              1: 1000, // 1k
+              2: 2000, // 2k
+              3: 2500, // 2.5k
+              4: 3000, // 3k
+              5: 3500, // 3.5k
+              6: 4000, // 4k
+              7: 4500  // 4.5k
+          };
+          
+          // --- Aturan perhitungan ---
+          
+          // 1. Hitung dulu harga 2U
+          if (days <= 7) {
+              // Gunakan harga dari daftar jika 1-7 hari
+              price2u = basePrices2u[days];
+          } else {
+              // Untuk hari ke-8 dst:
+              // Harga hari ke-7 (4.500) + 500 per hari tambahan
+              const extraDays = days - 7;
+              price2u = 4500 + (extraDays * 500);
+          }
+
+          // 2. Tentukan harga final berdasarkan Tipe Akun
           if (type === '1u') {
-              // --- LOGIKA HARGA 1U (sesuai Canva) ---
-              // Harga 1-7 hari sesuai daftar
-              const basePrices1u = {
-                  1: 1500, 2: 2500, 3: 3500, 4: 4500, 5: 5500, 6: 6500, 7: 7000
-              };
-              
-              if (days <= 7) {
-                  price = basePrices1u[days];
-              } else {
-                  // Pola setelah 7 hari di Canva: 7000 + 1000/hari tambahan
-                  price = 7000 + (days - 7) * 1000;
-              }
-
+              // Aturan baru: Harga 1U = Harga 2U + 500
+              price = price2u + 500;
           } else if (type === '2u') {
-              // --- LOGIKA HARGA 2U (sesuai Canva) ---
-              // Harga di Canva untuk 2U tidak memiliki pola matematika sederhana.
-              // Jadi, kita gunakan 'lookup table' (objek) untuk semua harga 1-30 hari
-              // agar 100% akurat sesuai gambar di Canva.
-              const prices2U = {
-                  1: 1000, 2: 2000, 3: 2500, 4: 3000, 5: 4000, 6: 4500, 7: 5000,
-                  8: 5500, 9: 6000, 10: 7000, 11: 7500, 12: 8000, 13: 9000, 14: 10000,
-                  15: 11000, 16: 11500, 17: 12000, 18: 12500, 19: 13000, 20: 13500,
-                  21: 14000, 22: 14500, 23: 15000, 24: 15500, 25: 16000, 26: 16500,
-                  27: 17000, 28: 17500, 29: 18000, 30: 18500
-              };
-              
-              price = prices2U[days];
+              // Harga 2U adalah harga dasar
+              price = price2u;
           }
 
           
@@ -270,7 +278,7 @@
               document.getElementById('resultBox').style.display = 'none';
           }
       }
-      // --- BATAS AKHIR PERUBAHAN ---
+      // --- BATAS AKHIR FUNGSI BARU ---
 
 
       // Add event listeners
@@ -327,10 +335,8 @@
           document.getElementById('resultLabel').style.fontFamily = `${customFont}, ${baseFontStack}`;
           document.getElementById('resultLabel').style.fontSize = `${baseSize * 1.25}px`;
           
-          // Ini adalah baris yang Anda tambahkan, saya biarkan
           document.querySelector('.result-box').style.background = config.accent_color || defaultConfig.accent_color; 
           
-          // Update body background
           document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, #1a0000 50%, #000000 100%)`;
       }
 
